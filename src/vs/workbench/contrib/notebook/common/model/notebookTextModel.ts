@@ -21,6 +21,7 @@ import { IModeService } from 'vs/editor/common/services/modeService';
 import { ITextBuffer, ITextModel } from 'vs/editor/common/model';
 import { TextModel } from 'vs/editor/common/model/textModel';
 import { isDefined } from 'vs/base/common/types';
+import { equals } from 'vs/base/common/objects';
 
 
 class StackOperation implements IWorkspaceUndoRedoElement {
@@ -660,13 +661,17 @@ export class NotebookTextModel extends Disposable implements INotebookTextModel 
 
 	private _isDocumentMetadataChangeTransient(a: NotebookDocumentMetadata, b: NotebookDocumentMetadata) {
 		const keys = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
-		for (let key of keys) {
-			if (key !== 'trusted') {
-				return true;
+		for (const key of keys) {
+			if (key === 'custom') {
+				if (!this._customMetadataEqual(a[key], b[key]) && !this.transientOptions.transientDocumentMetadata[key]) {
+					return false;
+				}
+			} else if (!equals(a[key], b[key]) && !this.transientOptions.transientDocumentMetadata[key]) {
+				return false;
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	private _updateNotebookMetadata(metadata: NotebookDocumentMetadata, computeUndoRedo: boolean) {
