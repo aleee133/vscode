@@ -662,11 +662,7 @@ export class NotebookTextModel extends Disposable implements INotebookTextModel 
 	private _isDocumentMetadataChangeTransient(a: NotebookDocumentMetadata, b: NotebookDocumentMetadata) {
 		const keys = new Set([...Object.keys(a || {}), ...Object.keys(b || {})]);
 		for (const key of keys) {
-			if (key === 'custom') {
-				if (!this._customMetadataEqual(a[key], b[key]) && !this.transientOptions.transientDocumentMetadata[key]) {
-					return false;
-				}
-			} else if (!equals(a[key], b[key]) && !this.transientOptions.transientDocumentMetadata[key]) {
+			if (!equals(a[key], b[key]) && !this.transientOptions.transientDocumentMetadata[key]) {
 				return false;
 			}
 		}
